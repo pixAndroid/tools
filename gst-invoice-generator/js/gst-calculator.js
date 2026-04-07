@@ -59,13 +59,12 @@ export function calculateLineItem(item, transactionType) {
 
   const taxableAmount = round2(qty * rate);
   const taxAmount = round2(taxableAmount * gstPct / 100);
-
   let cgst = 0, sgst = 0, igst = 0;
 
   if (transactionType === 'inter') {
     igst = taxAmount;
   } else {
-    cgst = round2(taxableAmount * (gstPct / 2) / 100);
+    cgst = round2(taxableAmount * gstPct / 200);
     sgst = cgst;
   }
 
