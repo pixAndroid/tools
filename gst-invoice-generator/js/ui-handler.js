@@ -174,10 +174,10 @@ function createItemRow(item, idx) {
       <input type="text" class="item-input item-hsn" placeholder="HSN/SAC" value="${escHtml(item.hsn)}" aria-label="HSN/SAC code">
     </td>
     <td class="col-qty">
-      <input type="number" class="item-input item-qty" min="0" step="any" placeholder="0" value="${escHtml(item.qty)}" aria-label="Quantity">
+      <input type="number" class="item-input item-qty" min="0" step="1" placeholder="0" value="${escHtml(item.qty)}" aria-label="Quantity">
     </td>
     <td class="col-rate">
-      <input type="number" class="item-input item-rate" min="0" step="any" placeholder="0.00" value="${escHtml(item.rate)}" aria-label="Rate">
+      <input type="number" class="item-input item-rate" min="0" step="0.01" placeholder="0.00" value="${escHtml(item.rate)}" aria-label="Rate">
     </td>
     <td class="col-gst">
       <select class="item-input item-gst" aria-label="GST percentage">
@@ -368,9 +368,11 @@ function updatePreview() {
   // Build items rows HTML
   const itemRowsHtml = result.lineItems.map((li, idx) => {
     if (!li.name && !parseFloat(li.rate) && !parseFloat(li.qty)) return '';
+    const halfGst = round2(parseFloat(li.gstPercent) / 2);
+    const gstPctSafe = escHtml(String(li.gstPercent));
     const taxDisplay = txType === 'inter'
-      ? `IGST ${li.gstPercent}%: ${formatIndianCurrency(li.igst)}`
-      : `CGST ${round2(parseFloat(li.gstPercent) / 2)}%: ${formatIndianCurrency(li.cgst)}<br>SGST ${round2(parseFloat(li.gstPercent) / 2)}%: ${formatIndianCurrency(li.sgst)}`;
+      ? `IGST ${gstPctSafe}%: ${formatIndianCurrency(li.igst)}`
+      : `CGST ${halfGst}%: ${formatIndianCurrency(li.cgst)}<br>SGST ${halfGst}%: ${formatIndianCurrency(li.sgst)}`;
 
     return `
       <tr>
@@ -379,7 +381,7 @@ function updatePreview() {
           <strong>${escHtml(li.name) || '—'}</strong>
           ${li.hsn ? `<br><span class="pv-sub">HSN: ${escHtml(li.hsn)}</span>` : ''}
         </td>
-        <td class="pv-center">${li.qty}</td>
+        <td class="pv-center">${escHtml(String(li.qty))}</td>
         <td class="pv-right">${formatIndianCurrency(parseFloat(li.rate) || 0)}</td>
         <td class="pv-right">${formatIndianCurrency(li.taxableAmount)}</td>
         <td class="pv-right pv-small">${taxDisplay}</td>

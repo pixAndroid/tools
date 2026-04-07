@@ -66,7 +66,7 @@ export function calculateLineItem(item, transactionType) {
     igst = taxAmount;
   } else {
     cgst = round2(taxableAmount * (gstPct / 2) / 100);
-    sgst = round2(taxableAmount * (gstPct / 2) / 100);
+    sgst = cgst;
   }
 
   const total = round2(taxableAmount + cgst + sgst + igst);
