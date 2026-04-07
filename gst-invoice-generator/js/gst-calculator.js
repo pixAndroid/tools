@@ -64,6 +64,7 @@ export function calculateLineItem(item, transactionType) {
   if (transactionType === 'inter') {
     igst = taxAmount;
   } else {
+    // Divide GST% by 200 = (gstPct / 2) / 100: split equally into CGST and SGST
     cgst = round2(taxableAmount * gstPct / 200);
     sgst = cgst;
   }
