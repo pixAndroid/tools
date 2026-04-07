@@ -75,6 +75,7 @@ export function calculateLineItem(item, transactionType) {
 
 /**
  * Calculates the invoice summary from an array of line items.
+ * Also produces a per-rate tax breakdown (e.g. IGST 5% → ₹33.30).
  * @param {Array<Object>} items - Array of line item objects
  * @param {'intra'|'inter'} transactionType
  * @returns {{
@@ -83,7 +84,8 @@ export function calculateLineItem(item, transactionType) {
  *   totalCgst: number,
  *   totalSgst: number,
  *   totalIgst: number,
- *   grandTotal: number
+ *   grandTotal: number,
+ *   taxBreakdown: Array<{rate: number, taxableAmount: number, cgst: number, sgst: number, igst: number}>
  * }}
  */
 export function calculateInvoice(items, transactionType) {
@@ -92,12 +94,25 @@ export function calculateInvoice(items, transactionType) {
   let totalSgst = 0;
   let totalIgst = 0;
 
+  /** @type {Map<number, {taxableAmount: number, cgst: number, sgst: number, igst: number}>} */
+  const rateMap = new Map();
+
   const lineItems = items.map((item) => {
     const calc = calculateLineItem(item, transactionType);
     subtotal += calc.taxableAmount;
     totalCgst += calc.cgst;
     totalSgst += calc.sgst;
     totalIgst += calc.igst;
+
+    const rate = parseFloat(item.gstPercent) || 0;
+    const existing = rateMap.get(rate) || { taxableAmount: 0, cgst: 0, sgst: 0, igst: 0 };
+    rateMap.set(rate, {
+      taxableAmount: existing.taxableAmount + calc.taxableAmount,
+      cgst: existing.cgst + calc.cgst,
+      sgst: existing.sgst + calc.sgst,
+      igst: existing.igst + calc.igst,
+    });
+
     return { ...item, ...calc };
   });
 
@@ -107,7 +122,17 @@ export function calculateInvoice(items, transactionType) {
   totalIgst = round2(totalIgst);
   const grandTotal = round2(subtotal + totalCgst + totalSgst + totalIgst);
 
-  return { lineItems, subtotal, totalCgst, totalSgst, totalIgst, grandTotal };
+  const taxBreakdown = Array.from(rateMap.entries())
+    .sort((a, b) => a[0] - b[0])
+    .map(([rate, vals]) => ({
+      rate,
+      taxableAmount: round2(vals.taxableAmount),
+      cgst: round2(vals.cgst),
+      sgst: round2(vals.sgst),
+      igst: round2(vals.igst),
+    }));
+
+  return { lineItems, subtotal, totalCgst, totalSgst, totalIgst, grandTotal, taxBreakdown };
 }
 
 /**

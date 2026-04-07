@@ -14,10 +14,10 @@
   --color-primary:       #4F46E5;
   --color-primary-dark:  #3730A3;
   --color-primary-light: #EEF2FF;
-  --color-accent:        #06B6D4;
-  --color-success:       #10B981;
-  --color-danger:        #EF4444;
-  --color-warning:       #F59E0B;
+  --color-accent:        #0891B2;
+  --color-success:       #059669;
+  --color-danger:        #DC2626;
+  --color-warning:       #D97706;
 
   --color-bg:            #F8F9FC;
   --color-surface:       #FFFFFF;
@@ -27,6 +27,9 @@
   --color-text:          #1E293B;
   --color-text-muted:    #64748B;
   --color-text-light:    #94A3B8;
+
+  /* Slightly desaturated primary for print-friendly output */
+  --color-print-primary: #3B3F9E;
 
   --radius-sm:   6px;
   --radius-md:   10px;
@@ -515,15 +518,17 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
   gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 20px;
-  border-bottom: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-print-primary);
 }
 
 .pv-invoice-title {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--color-primary);
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--color-print-primary);
   text-align: right;
   margin-bottom: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .pv-business-name {
@@ -536,6 +541,18 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
 .pv-sub {
   font-size: 0.78rem;
   color: var(--color-text-muted);
+}
+
+.pv-hsn-tag {
+  display: inline-block;
+  font-size: 0.73rem;
+  color: var(--color-text-muted);
+  background: #F1F5F9;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
 }
 
 .pv-address {
@@ -600,7 +617,7 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
 }
 
 .pv-items-table thead tr {
-  background: var(--color-primary);
+  background: var(--color-print-primary);
   color: #fff;
 }
 
@@ -641,7 +658,7 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
   padding: 12px 14px;
   background: var(--color-primary-light);
   border-radius: var(--radius-sm);
-  border-left: 3px solid var(--color-primary);
+  border-left: 3px solid var(--color-print-primary);
   align-self: flex-end;
 }
 
@@ -650,7 +667,7 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-primary);
+  color: var(--color-print-primary);
   margin-bottom: 3px;
 }
 
@@ -660,7 +677,7 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
   font-style: italic;
 }
 
-.pv-totals { min-width: 220px; }
+.pv-totals { min-width: 240px; }
 
 .pv-totals-table {
   width: 100%;
@@ -669,7 +686,7 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
 }
 
 .pv-totals-table td {
-  padding: 4px 6px;
+  padding: 3px 6px;
 }
 
 .pv-totals-table td:last-child {
@@ -679,20 +696,104 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
   white-space: nowrap;
 }
 
+.pv-totals-label {
+  color: var(--color-text-muted);
+  padding-right: 20px;
+}
+
+.pv-total-tax-row td {
+  border-top: 1px dashed var(--color-border);
+  padding-top: 5px;
+  margin-top: 2px;
+}
+
 .pv-grand-total-row {
-  border-top: 2px solid var(--color-primary);
+  border-top: 2px solid var(--color-print-primary);
 }
 
 .pv-grand-total-row td {
   padding-top: 8px;
   font-size: 1rem;
-  color: var(--color-primary);
+  color: var(--color-print-primary);
 }
 
+/* ── Notes Section ─────────────────────────────────────────── */
+.pv-notes {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: #FFFBEB;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-warning);
+}
+
+.pv-notes-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-warning);
+  margin-bottom: 3px;
+}
+
+.pv-notes-text {
+  font-size: 0.82rem;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+/* ── Footer / Signature ────────────────────────────────────── */
 .pv-footer {
   margin-top: 28px;
   padding-top: 14px;
   border-top: 1px solid var(--color-border);
+}
+
+.pv-signature-block {
+  display: flex;
+  justify-content: flex-end;
+  gap: 40px;
+  margin-bottom: 14px;
+}
+
+.pv-signature-box {
+  text-align: center;
+  min-width: 130px;
+}
+
+.pv-signature-line {
+  height: 48px;
+  border-bottom: 1.5px solid var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.pv-seal-box {
+  text-align: center;
+  min-width: 90px;
+}
+
+.pv-seal-circle {
+  width: 70px;
+  height: 70px;
+  border: 1.5px dashed var(--color-text-light);
+  border-radius: 50%;
+  margin: 0 auto 6px;
+}
+
+.pv-signature-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.pv-signature-name {
+  font-size: 0.75rem;
+  color: var(--color-text);
+  margin-top: 2px;
+}
+
+.pv-footer-note {
   text-align: center;
   font-size: 0.73rem;
   color: var(--color-text-light);
@@ -736,7 +837,24 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
     border-radius: 0;
   }
 
+  /* Use desaturated color in print for better B/W compatibility */
+  .pv-invoice-title,
+  .pv-grand-total-row td { color: #000 !important; }
+
+  .pv-items-table thead tr { background: #333 !important; }
+
+  .pv-header { border-bottom-color: #333 !important; }
+
+  .pv-grand-total-row { border-top-color: #333 !important; }
+
+  .pv-notes { background: #f9f9f9 !important; border-left-color: #999 !important; }
+  .pv-notes-label { color: #555 !important; }
+
+  .pv-words { background: #f3f3f3 !important; border-left-color: #555 !important; }
+  .pv-words-label { color: #555 !important; }
+
   .pv-items-table { page-break-inside: avoid; }
+  .pv-footer { page-break-inside: avoid; }
 }
 
 /* ── Responsive tweaks ─────────────────────────────────────── */
@@ -755,11 +873,12 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
     gap: 12px;
   }
 
-  .pv-invoice-title { text-align: left; }
+  .pv-invoice-title { text-align: left; font-size: 1.5rem; }
   .pv-meta-table { margin-left: 0; }
 
   .pv-parties { flex-direction: column; }
   .pv-summary { flex-direction: column; }
+  .pv-signature-block { gap: 20px; }
 
   .summary-table { max-width: 100%; }
 }
