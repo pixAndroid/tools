@@ -838,20 +838,20 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
   }
 
   /* Use desaturated color in print for better B/W compatibility */
-  .pv-invoice-title,
-  .pv-grand-total-row td { color: #000 !important; }
+  #invoice-preview .pv-invoice-title,
+  #invoice-preview .pv-grand-total-row td { color: #000; }
 
-  .pv-items-table thead tr { background: #333 !important; }
+  #invoice-preview .pv-items-table thead tr { background: #333; }
 
-  .pv-header { border-bottom-color: #333 !important; }
+  #invoice-preview .pv-header { border-bottom-color: #333; }
 
-  .pv-grand-total-row { border-top-color: #333 !important; }
+  #invoice-preview .pv-grand-total-row { border-top-color: #333; }
 
-  .pv-notes { background: #f9f9f9 !important; border-left-color: #999 !important; }
-  .pv-notes-label { color: #555 !important; }
+  #invoice-preview .pv-notes { background: #f9f9f9; border-left-color: #999; }
+  #invoice-preview .pv-notes-label { color: #555; }
 
-  .pv-words { background: #f3f3f3 !important; border-left-color: #555 !important; }
-  .pv-words-label { color: #555 !important; }
+  #invoice-preview .pv-words { background: #f3f3f3; border-left-color: #555; }
+  #invoice-preview .pv-words-label { color: #555; }
 
   .pv-items-table { page-break-inside: avoid; }
   .pv-footer { page-break-inside: avoid; }
@@ -885,6 +885,7 @@ h1, h2, h3, h4 { line-height: 1.25; font-weight: 700; }
 
 @media (min-width: 768px) and (max-width: 1024px) {
   .main-content { padding: 18px; gap: 20px; }
+  .pv-invoice-title { font-size: 1.6rem; }
 }
 
 /* ── Animations ────────────────────────────────────────────── */
