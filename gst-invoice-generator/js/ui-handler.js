@@ -76,6 +76,9 @@ function saveToStorage() {
       customerAddress: q('#customer-address').value,
       invoiceNumber: q('#invoice-number').value,
       invoiceDate: q('#invoice-date').value,
+      dueDate: q('#due-date').value,
+      paymentMethod: q('#payment-method').value,
+      invoiceNotes: q('#invoice-notes').value,
       items,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -100,6 +103,9 @@ function restoreFromStorage() {
     q('#customer-address').value = data.customerAddress || '';
     q('#invoice-number').value = data.invoiceNumber || generateInvoiceNumber();
     q('#invoice-date').value = data.invoiceDate || todayIso();
+    q('#due-date').value = data.dueDate || '';
+    q('#payment-method').value = data.paymentMethod || '';
+    q('#invoice-notes').value = data.invoiceNotes || '';
 
     if (Array.isArray(data.items) && data.items.length > 0) {
       items = data.items;
@@ -359,6 +365,9 @@ function updatePreview() {
 
   const invoiceNumber = q('#invoice-number').value.trim() || '—';
   const invoiceDate = formatDisplayDate(q('#invoice-date').value) || '—';
+  const dueDate = formatDisplayDate(q('#due-date').value);
+  const paymentMethod = q('#payment-method').value.trim();
+  const invoiceNotes = q('#invoice-notes').value.trim();
 
   const businessName = q('#business-name').value.trim() || 'Your Business Name';
   const businessAddress = q('#business-address').value.trim() || '';
@@ -379,7 +388,7 @@ function updatePreview() {
         <td class="pv-center">${idx + 1}</td>
         <td>
           <strong>${escHtml(li.name) || '—'}</strong>
-          ${li.hsn ? `<br><span class="pv-sub">HSN: ${escHtml(li.hsn)}</span>` : ''}
+          ${li.hsn ? `<br><span class="pv-hsn-tag">HSN: ${escHtml(li.hsn)}</span>` : ''}
         </td>
         <td class="pv-center">${escHtml(String(li.qty))}</td>
         <td class="pv-right">${formatIndianCurrency(parseFloat(li.rate) || 0)}</td>
@@ -389,12 +398,36 @@ function updatePreview() {
       </tr>`;
   }).join('');
 
-  // Tax summary rows
-  const taxSummaryHtml = txType === 'inter'
-    ? `<tr><td>Total IGST</td><td>${formatIndianCurrency(result.totalIgst)}</td></tr>`
-    : `
-      <tr><td>Total CGST</td><td>${formatIndianCurrency(result.totalCgst)}</td></tr>
-      <tr><td>Total SGST</td><td>${formatIndianCurrency(result.totalSgst)}</td></tr>`;
+  // Per-rate tax breakdown rows
+  const breakdownRows = result.taxBreakdown
+    .filter(b => b.rate > 0 && (b.igst > 0 || b.cgst > 0))
+    .map(b => {
+      if (txType === 'inter') {
+        return `<tr><td class="pv-totals-label">IGST ${b.rate}%</td><td>${formatIndianCurrency(b.igst)}</td></tr>`;
+      } else {
+        const half = round2(b.rate / 2);
+        return `
+          <tr><td class="pv-totals-label">CGST ${half}%</td><td>${formatIndianCurrency(b.cgst)}</td></tr>
+          <tr><td class="pv-totals-label">SGST ${half}%</td><td>${formatIndianCurrency(b.sgst)}</td></tr>`;
+      }
+    }).join('');
+
+  // Total tax row
+  const totalTaxRow = txType === 'inter'
+    ? `<tr class="pv-total-tax-row"><td class="pv-totals-label"><strong>Total IGST</strong></td><td><strong>${formatIndianCurrency(result.totalIgst)}</strong></td></tr>`
+    : `<tr class="pv-total-tax-row"><td class="pv-totals-label"><strong>Total Tax</strong></td><td><strong>${formatIndianCurrency(round2(result.totalCgst + result.totalSgst))}</strong></td></tr>`;
+
+  // Optional meta rows
+  const dueDateRow = dueDate ? `<tr><th>Due Date</th><td>${escHtml(dueDate)}</td></tr>` : '';
+  const paymentRow = paymentMethod ? `<tr><th>Payment</th><td>${escHtml(paymentMethod)}</td></tr>` : '';
+
+  // Notes section
+  const notesHtml = invoiceNotes
+    ? `<div class="pv-notes">
+        <p class="pv-notes-label">Notes</p>
+        <p class="pv-notes-text">${escHtml(invoiceNotes).replace(/\n/g, '<br>')}</p>
+       </div>`
+    : '';
 
   const preview = q('#invoice-preview');
   preview.innerHTML = `
@@ -409,6 +442,8 @@ function updatePreview() {
         <table class="pv-meta-table">
           <tr><th>Invoice No.</th><td>${escHtml(invoiceNumber)}</td></tr>
           <tr><th>Date</th><td>${escHtml(invoiceDate)}</td></tr>
+          ${dueDateRow}
+          ${paymentRow}
         </table>
       </div>
     </div>
@@ -451,8 +486,9 @@ function updatePreview() {
       </div>
       <div class="pv-totals">
         <table class="pv-totals-table">
-          <tr><td>Subtotal</td><td>${formatIndianCurrency(result.subtotal)}</td></tr>
-          ${taxSummaryHtml}
+          <tr><td class="pv-totals-label">Subtotal</td><td>${formatIndianCurrency(result.subtotal)}</td></tr>
+          ${breakdownRows}
+          ${totalTaxRow}
           <tr class="pv-grand-total-row">
             <td><strong>Grand Total</strong></td>
             <td><strong>${formatIndianCurrency(result.grandTotal)}</strong></td>
@@ -461,8 +497,21 @@ function updatePreview() {
       </div>
     </div>
 
+    ${notesHtml}
+
     <div class="pv-footer">
-      <p>Computer Generated Invoice</p>
+      <div class="pv-signature-block">
+        <div class="pv-signature-box">
+          <div class="pv-signature-line"></div>
+          <p class="pv-signature-label">Authorized Signatory</p>
+          <p class="pv-signature-name">${escHtml(businessName)}</p>
+        </div>
+        <div class="pv-seal-box">
+          <div class="pv-seal-circle"></div>
+          <p class="pv-signature-label">Company Seal</p>
+        </div>
+      </div>
+      <p class="pv-footer-note">Computer Generated Invoice</p>
     </div>
   `;
 }
@@ -476,7 +525,7 @@ function bindFormEvents() {
   const formFields = [
     '#business-name', '#business-gstin', '#business-address',
     '#customer-name', '#customer-gstin', '#customer-address',
-    '#invoice-number', '#invoice-date',
+    '#invoice-number', '#invoice-date', '#due-date', '#payment-method', '#invoice-notes',
   ];
 
   formFields.forEach(selector => {
